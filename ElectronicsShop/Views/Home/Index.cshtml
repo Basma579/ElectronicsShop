@@ -1,0 +1,258 @@
+﻿@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@model ElectronicsShop.ViewModels.SelectedProductsViewModel
+
+@{ ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+
+<br />
+<br />
+@using (Html.BeginForm("Index", "Home", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <a id="lbl_cart" style=" cursor: pointer;">
+
+        <i class="fa" style="font-size:24px">&#xf07a;</i>
+
+        <span class='badge badge-warning' id='lblCartCount'> 0 </span>
+    </a>
+
+    <div style="width:100%;display:flex;flex-wrap:wrap">
+        @for (var i = 0; i < Model.Items.Count(); i++)
+        {
+
+
+
+            <div class="card" style="width:180px;margin:10px" id="card_@Model.Items[i].ID">
+
+                <div class="card-header" style=" max-width: 180px ; width:180px; max-height:150px ;  height:150px ; display: inline-block">
+                    <h4 style="color:cornflowerblue">
+                        @Model.Items[i].Name
+                    </h4>
+
+
+                    @if (Model.Items[i].Discount > 0)
+                    {
+                        <h6 style="color:black ; font-weight:bold">
+                            @((Model.Items[i].Price )) $
+                        </h6>
+                        <span style="color:red ; font-size:small"> Buy two or more items and get @Model.Items[i].Discount.ToString()  % off </span> @*<span style=" height: 50px; width: 50px; background-color: coral;"> - @Model.Items[i].Discount </span>*@ }
+                    else
+                    {
+                        <h6 style="color:black ; font-weight:bold">
+                            @Model.Items[i].Price $
+                        </h6>
+
+                    }
+
+
+
+
+                </div>
+
+                <div class="card-body ">
+
+                    <div class="col-12" style="height:100Px; max-height:100px ;font-style:italic; font-weight:500">
+
+                        @Model.Items[i].Description
+                    </div>
+
+                    <br />
+                    <br />
+                    <br />
+
+
+                    <div style="height:30Px; max-height:30px">
+                        <input type="button" class="fa fa-plus" value="+" style="font-weight:bold; font-size:larger ; background-color:cornflowerblue; color:white" onclick="ChangeQuantity(@Model.Items[i].ID , true)" />
+                        &nbsp;
+                        <label id="SelectedQuantity_@Model.Items[i].ID">0 </label>
+                        &nbsp;
+                        <input type="button" class="fa fa-plus" value="-" style="font-weight:bold; font-size:larger ; background-color:cornflowerblue ; color:white" ; onclick="ChangeQuantity(@Model.Items[i].ID , false)" />
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="card-footer">
+                        <input type="button"  id="@Model.Items[i].ID" style="font-weight:bold; font-size:small" value="Add To Card" onclick="AddItemsIds(@Model.Items[i].ID)" />
+                    </div>
+                    <input type="hidden" asp-for="@Model.Items[i].ID">
+                    <input type="hidden" asp-for="@Model.Items[i].Name">
+                    <input type="hidden" asp-for="@Model.Items[i].Price">
+                    <input type="hidden" asp-for="@Model.Items[i].Discount">
+                    <input type="hidden" asp-for="@Model.Items[i].Description">
+                    <input type="hidden" asp-for="@Model.Items[i].Quantity" id="Qty_@Model.Items[i].ID">
+
+                </div>}
+    </div>
+
+
+    <input type="hidden" asp-for="SelecedIds" id="hiddenIDs">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12  text-right">
+
+
+                <button type="submit" class="btn btn-primary" id="btn_Confirm_Order">CheckOut</button>
+                </div></div></div>
+                <br> <br>
+                }
+
+                <form asp-action="GetNexPage" asp-controller="Home" method="post">
+                    <div>
+
+                        <table class="table table-bordered" style="width:10%">
+                            <tr>
+                                @for (int i = 1; i <= Model.PageCount; i++)
+                                {
+                                    <td>
+                                        @if (i != Model.CurrentPageIndex)
+                                        {
+                                            <a href="javascript:PagerClick(@i);">@i</a>
+                                        }
+                                        else
+                                        {
+                                            <span>@i</span>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        </table>
+                    </div>
+                    <input type="hidden" id="hfCurrentPageIndex" name="currentPageIndex" />
+                </form>
+
+                <script type="text/javascript">
+                    function PagerClick(index) {
+                        document.getElementById("hfCurrentPageIndex").value = index;
+                        document.forms[1].submit();
+                    }
+                </script>
+
+
+
+                <script src="~/lib/jquery/dist/jquery.js"></script>
+
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+                <script>
+
+
+                    $('#lbl_cart').click(function () {
+                        $("#btn_Confirm_Order").click();
+                    })
+                </script>
+
+
+                <script language="javascript" type="text/javascript">
+
+                    var ItemsIDs = [];
+                    function AddItemsIds(id) {
+                        if (ItemsIDs.includes(id) === false) {
+                            $('#' + id).attr('value', 'Remove From Card')
+                            $('#card_' + id).attr('class', 'card border-primary m-3')
+                            ItemsIDs.push(id);
+                            var SelectedQuantity = document.getElementById('SelectedQuantity_' + id).innerHTML;
+                            if (SelectedQuantity == 0) {
+                                ChangeQuantity(id, true);
+                            }
+                           
+                        }
+                        else {
+                            $('#' + id).attr('value', 'Add To Card')
+                            $('#card_' + id).attr('class', 'card m-3')
+                            ItemsIDs.pop(id);
+
+                            //if (ItemsIDs.length == 0) {
+                            //    var val = 0;
+                            //    $('#lblCartCount').text(val);
+                            //}
+                            //else {
+                            //    var val = parseInt($("#lblCartCount").text(), 10) - 1;
+                            //    $('#lblCartCount').text(val);
+                            //}
+
+
+                            $('#lblCartCount').text(ItemsIDs.length);
+
+                        }
+                        var SelectedQuantity = document.getElementById('SelectedQuantity_' + id).innerHTML;
+
+
+                        //$('#lblCartCount').text(ItemsIDs.length)
+                        $("#hiddenIDs").val(ItemsIDs);
+
+                        if (ItemsIDs.length > 0) {
+                            document.getElementById("btn_Confirm_Order").disabled = false;
+                        }
+                        else {
+                            document.getElementById("btn_Confirm_Order").disabled = true;
+                        }
+                    }
+
+
+
+                    function ChangeQuantity(id, isUP) {
+                        var value = document.getElementById('SelectedQuantity_' + id).innerHTML;
+                        if (isUP) {
+                            document.getElementById('SelectedQuantity_' + id).innerHTML = Number(value) + 1;
+                            $('#Qty_' + id).val(Number(value) + 1);
+
+
+                            var val = parseInt($("#lblCartCount").text(), 10) + 1;
+                            $('#lblCartCount').text(val);
+
+                            if (ItemsIDs.includes(id) === false) {
+                                $('#' + id).attr('value', 'Remove From Card')
+                                $('#card_' + id).attr('class', 'card border-primary m-3')
+                                ItemsIDs.push(id);
+
+                                $('#lblCartCount').text(ItemsIDs.length)
+                                $("#hiddenIDs").val(ItemsIDs);
+                                if (ItemsIDs.length > 0) {
+                                    document.getElementById("btn_Confirm_Order").disabled = false;
+                                }
+                                else {
+                                    document.getElementById("btn_Confirm_Order").disabled = true;
+                                }
+
+                            }
+
+
+                        }
+                        else {
+                            if (value > 0) {
+                                document.getElementById('SelectedQuantity_' + id).innerHTML -= 1
+                                $('#Qty_' + id).val(value - 1);
+
+                                if (value == 1) {
+
+                                    $('#' + id).attr('value', 'Add To Card')
+                                    $('#card_' + id).attr('class', 'card m-3')
+                                    ItemsIDs.pop(id);
+                                    $('#lblCartCount').text(ItemsIDs.length)
+                                }
+
+                                var val = parseInt($("#lblCartCount").text(), 10) - 1;
+                                if (val === -1) {
+                                    val = 0;
+                                }
+                                $('#lblCartCount').text(val);
+                            }
+                        }
+                    }
+
+
+
+
+
+
+
+                </script>
+
+
+

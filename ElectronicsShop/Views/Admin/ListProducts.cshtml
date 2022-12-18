@@ -1,0 +1,81 @@
+﻿@model ElectronicsShop.ProductsListViewModel
+
+
+@using (Html.BeginForm("ListProducts", "Admin", FormMethod.Post))
+{
+
+    <h2>All Products</h2>
+
+    <br>
+    <br>
+    <div class="form-group">
+
+        <div style="width:500px;" id="container">
+            @Html.DropDownListFor(model => model.FilteredCategory, Model.CategoryList, "Select Category", new { @class = "ddlMenu" })
+
+            <input type="submit" class="btn btn-primary" value="Search" />
+
+        </div>
+
+    </div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.productViewModels[0].Name)
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.productViewModels[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.productViewModels[0].Price)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.productViewModels[0].Discount)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.productViewModels)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discount)
+                </td>
+                <td>
+                    <a asp-action="EditProducts" class="btn btn-primary" asp-route-id="@item.ID">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<style type="text/css">
+    #container div {
+        display: inline-block;
+        width: 130px;
+    }
+
+    .ddlMenu {
+        width: 30%;
+    }
+</style>

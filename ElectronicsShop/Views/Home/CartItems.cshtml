@@ -1,0 +1,103 @@
+﻿@model IEnumerable<ElectronicShope.ProductViewModel>
+
+@{ ViewData["Title"] = "ConfirmOrder";
+                Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<br />
+<br />
+
+<h2>My Card </h2>
+<br />
+
+<br />
+<br />
+
+<table class="table" style="border:none ; background-color:white">
+    <thead>
+        <tr>
+            <th>
+                Product
+            </th>
+
+
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+Price            </th>
+            <th>
+                Discount
+            </th>
+            <th>
+                Total Price
+            </th>
+
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.Name)
+    </td>
+
+    <td>
+        @using (Html.BeginForm())
+        {
+
+<input type="submit" asp-action="ChangeQuantity" asp-route-ItemID="@item.ID"
+       asp-route-IsIncrease="true" class="fa fa-plus" value="+" style="font-weight:bold; font-size:larger ; 
+background-color:cornflowerblue; color:white" />
+                    <label id="SelectedQuantity_@item.ID">  @Html.DisplayFor(modelItem => item.Quantity)</label>
+
+                                        <input type="submit" class="fa fa-plus" asp-action="ChangeQuantity"
+                                               asp-route-ItemID="@item.ID" asp-route-IsIncrease="false" value="-" style="font-weight:bold; font-size:larger ; background-color:cornflowerblue ; color:white" />}
+    </td>
+        <td> @item.Price</td>
+    <td>
+        @item.DiscountValue
+
+        <input type="hidden" id="Discount_@item.ID" value="@item.Discount">
+    </td>
+    <td>
+        <label id="TotalPrice_@item.ID">
+            @Html.DisplayFor(modelItem => item.PriceAfterDiscount)
+        </label>
+
+
+    </td>
+
+    <td>
+        <form asp-action="RemoveCartItem" asp-controller="Home">
+
+            <input type="submit" asp-action="RemoveCartItem" asp-controller="Home"
+                   asp-route-Product_ID="@item.ID" value="Remove" class="btn btn-danger">
+
+        </form>
+    </td>
+</tr>}
+
+
+    </tbody>
+    <tfoot>
+
+        <tr>
+            <th scope="row">Totals</th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>  @Model.Sum(i => i.PriceAfterDiscount)</td>
+        </tr>
+    </tfoot>
+</table>
+<form asp-action="ConfirmOrder" asp-controller="Home">
+
+    <input type="submit" asp-action="ConfirmOrder" asp-controller="Home" value="Confirm Order"  class="btn btn-primary"
+           onclick=" return confirm('Are you sure you want to Make this order?' ) ">
+
+</form>
+
+
